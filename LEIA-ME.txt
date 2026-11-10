@@ -1,0 +1,25 @@
+# FandomVerse — versão com Supabase
+
+## O que está preparado
+- Cadastro e login por e-mail/senha
+- Perfil público (nome de fã, fandom favorito e bio)
+- Galeria pública com upload de imagens
+- Categorias, pesquisa e ordenação por curtidas
+- Curtidas únicas por usuário/publicação
+- Regras de segurança (RLS) no banco e no Storage
+
+## Ativação do backend
+1. Crie um projeto gratuito em https://supabase.com/
+2. No painel do projeto, abra SQL Editor, crie uma query e execute todo o conteúdo de `supabase_setup.sql`.
+3. Em Project Settings > API, copie a Project URL e a chave `anon`/publishable (NUNCA use `service_role` no navegador).
+4. Abra `index.html` e substitua:
+   - `COLE_A_URL_DO_SEU_PROJETO` pela Project URL
+   - `COLE_SUA_CHAVE_ANON_PUBLIC` pela chave pública anon/publishable
+5. Publique `index.html` em uma hospedagem estática HTTPS (por exemplo, Cloudflare Pages, Netlify ou GitHub Pages).
+6. Em Authentication > URL Configuration no Supabase, defina a URL publicada como Site URL e adicione-a às Redirect URLs.
+
+## Importante
+- O backend não pode ser provisionado sem acesso/autorização à sua conta Supabase. O código está preparado, mas só fica online depois de criar o projeto, executar o SQL e inserir as credenciais públicas.
+- A chave `service_role` é secreta: nunca a coloque no HTML.
+- Configure confirmação de e-mail e limites de upload conforme sua necessidade.
+- Esta versão permite publicar e curtir. A exclusão de posts e moderação administrativa podem ser adicionadas em uma próxima etapa.
