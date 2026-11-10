@@ -42,7 +42,26 @@ if(configured && window.supabase){db=window.supabase.createClient(SUPABASE_URL,S
 function toast(m){let n=document.getElementById("notice");n.textContent=m;n.style.display="block";setTimeout(()=>n.style.display="none",3200)}
 function openAuth(){if(!db){toast("Antes de ativar contas online, configure as credenciais do Supabase no arquivo.");return}document.getElementById("authModal").classList.add("show")}
 function closeModal(id){document.getElementById(id).classList.remove("show")}
-function toggleAuthMode()
+function toggleAuthMode() {
+  authMode = authMode === "login" ? "signup" : "login";
+
+  document.getElementById("authTitle").textContent =
+    authMode === "login" ? "Entrar no FandomVerse" : "Criar sua conta";
+
+  document.getElementById("authSubmit").textContent =
+    authMode === "login" ? "Entrar" : "Criar conta";
+
+  document.getElementById("authExtra").classList.toggle(
+    "hidden", authMode !== "signup"
+  );
+
+  document.getElementById("authSwitchText").textContent =
+    authMode === "login" ? "Ainda não tem conta?" : "Já tem uma conta?";
+
+  document.getElementById("authSwitch").textContent =
+    authMode === "login" ? "Criar conta" : "Entrar";
+}
+
 document.getElementById("authSwitch").addEventListener("click", function(event) {
   event.preventDefault();
   toggleAuthMode();
