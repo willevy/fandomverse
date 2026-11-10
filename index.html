@@ -315,6 +315,96 @@ async function deleteComment(commentId,postId){
   await loadPosts();
   toast("Comentário excluído.");
 }
+async function loadFollows(){
+  if(!user)return;
+
+  const box=document.getElementById("followList");
+
+  const {data:rows,error}=await db
+    .from("follows")
+    .select("follower_id,following_id");
+
+  if(error){
+    box.textContent="Erro ao carregar seguidores.";
+    console.error(error);
+    return;
+  }
+
+  const follows=rows||[];
+
+  document.getElementById("followersCount").textContent=
+    follows.filter(x=>x.following_id===user.id).length;
+
+  document.getElementById("followingCount").textContent=
+    follows.filter(x=>x.follower_id===user.id).length;
+
+  const {data:people,error:peopleError}=await db
+    .from("profiles")
+    .select("id,display_name")
+    .neq("id",user.id)
+    .limit(40);
+
+  if(peopleError){
+    box.textContent="Erro ao carregar fãs.";
+    return;
+  }
+
+  if(!people?.length){
+    box.textContent="Ainda não há outros fãs cadastrados.";
+    return;
+  }
+
+  box.innerHTML=people.map(p=>{
+    const following=follows.some(x=>
+      x.follower_id===user.id &&
+      x.following_id===p.id
+    );
+
+    return `
+      <div class="follow-person">
+        <strong>${safe(p.display_name||"Fã")}</strong>
+        <button class="follow-button"
+          onclick="toggleFollow('${p.id}')">
+          ${following?"Deixar de seguir":"Seguir"}
+        </button>
+      </div>
+    `;
+  }).join("");
+}
+
+async function toggleFollow(id){
+  if(!user)return;
+  if(id===user.id)return;
+
+  const {data:existing,error}=await db
+    .from("follows")
+    .select("follower_id")
+    .eq("follower_id",user.id)
+    .eq("following_id",id)
+    .maybeSingle();
+
+  if(error){
+    toast(error.message);
+    return;
+  }
+
+  const result=existing
+    ? await db.from("follows").delete()
+        .eq("follower_id",user.id)
+        .eq("following_id",id)
+    : await db.from("follows").insert({
+        follower_id:user.id,
+        following_id:id
+      });
+
+  if(result.error){
+    toast(result.error.message);
+    return;
+  }
+
+  await loadFollows();
+}
+
 function safe(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 document.querySelectorAll(".filter").forEach(b=>b.onclick=()=>{document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");category=b.dataset.cat;renderPosts()});
 async function uploadPosts(e){selectedFiles=[...e.target.files];if(!selectedFiles.length)return;document.getElementById("postTitle").value=selectedFiles.length===1?selectedFiles[0].name.replace(/\.[^.]+$/,""):"Minha galeria";document.getElementById("postModal").classList.add("show");e.target.value=""}
