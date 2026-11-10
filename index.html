@@ -30,10 +30,12 @@ section{padding:28px 0 38px}.head{display:flex;justify-content:space-between;ali
 <div class="notice" id="notice"></div>
 <script>
 /* CONFIGURE COM AS CREDENCIAIS DO SEU PROJETO SUPABASE */
-const SUPABASE_URL = "COLE_A_URL_DO_SEU_PROJETO";
-const SUPABASE_ANON_KEY = "COLE_SUA_CHAVE_ANON_PUBLIC";
-let db=null,user=null,profile=null,selectedFiles=[],category="Todas",authMode="login",posts=[];
-const configured=SUPABASE_URL.startsWith("https://") && SUPABASE_ANON_KEY.startsWith("ey");
+const SUPABASE_URL = "https://nbthovdnkkrjolnrqoat.supabase.co";
+
+const SUPABASE_ANON_KEY = "sb_publishable_wgcFT547Zxun07qFSNv1Xg_R1ZybFM8";
+
+const configured = SUPABASE_URL.startsWith("https://") &&
+(SUPABASE_ANON_KEY.startsWith("sb_publishable_") || SUPABASE_ANON_KEY.startsWith("ey"));
 if(configured && window.supabase){db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY)}
 function toast(m){let n=document.getElementById("notice");n.textContent=m;n.style.display="block";setTimeout(()=>n.style.display="none",3200)}
 function openAuth(){if(!db){toast("Antes de ativar contas online, configure as credenciais do Supabase no arquivo.");return}document.getElementById("authModal").classList.add("show")}
