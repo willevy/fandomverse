@@ -92,7 +92,24 @@ section{padding:28px 0 38px}.head{display:flex;justify-content:space-between;ali
 <main class="wrap">
 <div class="hero"><div><div class="eyebrow">FEITO POR FÃS, PARA FÃS</div><h1>Seu fandom.<br><em>Seu universo.</em></h1><p>Compartilhe fotos, monte sua galeria, conheça outros fãs e celebre cada momento do seu universo favorito.</p><div class="actions"><a class="btn" href="#galeria" style="text-decoration:none">Explorar galeria ↓</a><button class="btn secondary" onclick="requireLogin(()=>document.getElementById('uploadInput').click())">＋ Publicar foto</button></div></div><div class="heroart"><div class="tile">Momentos ✦</div><div class="tile">Memórias ♡</div><div class="tile">Fanarts 🎨</div><div class="tile">Fandom ★</div></div></div>
 <section id="perfil"><div class="head"><div><div class="eyebrow">SEU ESPAÇO</div><h2>Meu perfil</h2></div><button class="btn secondary" id="editProfile" onclick="requireLogin(editProfileForm)">Editar perfil</button></div><div class="panel profilebar"><div class="avatar" id="profileAvatar">F</div><div><strong id="profileName">Visitante</strong><p id="profileBio">Entre para criar seu perfil público e sua galeria.</p><small class="muted" id="profileFandom"></small></div></div></section>
-<section id="galeria"><div class="head"><div><div class="eyebrow">MURAL DA COMUNIDADE</div><h2>Galeria pública</h2><p class="muted">Imagens compartilhadas pelos membros do FandomVerse.</p></div><button class="btn" onclick="requireLogin(()=>document.getElementById('uploadInput').click())">＋ Publicar imagem</button></div>
+<section id="seguidores">
+  <div class="follow-box">
+    <h2>Seguidores e seguindo</h2>
+    <div class="follow-stats">
+      <div>
+        <strong id="followersCount">0</strong>
+        Seguidores
+      </div>
+      <div>
+        <strong id="followingCount">0</strong>
+        Seguindo
+      </div>
+    </div>
+    <div id="followList" class="follow-list">
+      Carregando fãs...
+    </div>
+  </div>
+</section><section id="galeria"><div class="head"><div><div class="eyebrow">MURAL DA COMUNIDADE</div><h2>Galeria pública</h2><p class="muted">Imagens compartilhadas pelos membros do FandomVerse.</p></div><button class="btn" onclick="requireLogin(()=>document.getElementById('uploadInput').click())">＋ Publicar imagem</button></div>
 <div class="filters"><button class="filter active" data-cat="Todas">Todas</button><button class="filter" data-cat="Fotos">Fotos</button><button class="filter" data-cat="Edits">Edits</button><button class="filter" data-cat="Fanart">Fanart</button><button class="filter" data-cat="Momentos">Momentos</button></div>
 <div class="toolbar"><input id="search" class="field search" placeholder="Buscar imagens, títulos ou fãs..." oninput="renderPosts()"><select id="sort" class="field" onchange="renderPosts()"><option value="new">Mais recentes</option><option value="popular">Mais curtidas</option></select></div>
 <div id="gallery" class="gallery"><div class="empty">Carregando galeria...</div></div>
