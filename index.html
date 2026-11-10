@@ -88,7 +88,30 @@ section{padding:28px 0 38px}.head{display:flex;justify-content:space-between;ali
 @media(max-width:760px){nav{display:none}.hero{grid-template-columns:1fr;padding-top:38px}.grid3{grid-template-columns:1fr}.head{align-items:start;flex-direction:column}.gallery{columns:2 145px}.wrap{padding:0 15px}}
 </style></head>
 <body>
-<header><div class="wrap nav"><div class="brand">FANDOM<span>VERSE</span> ✦</div><nav><a href="#galeria">Galeria</a><a href="#perfil">Meu perfil</a><a href="#comunidade">Comunidade</a></nav><div class="actions"><span id="userLabel" class="muted" style="font-size:12px"></span><button class="btn" <div class="notification-wrap">
+
+<header>
+<div class="wrap nav">
+<div class="brand">FANDOM<span>VERSE</span> ✦</div>
+<nav>
+<a href="#galeria">Galeria</a>
+<a href="#perfil">Meu perfil</a>
+<a href="#comunidade">Comunidade</a>
+</nav>
+<div class="actions">
+<span id="userLabel" class="muted" style="font-size:12px"></span>
+<div class="notification-wrap">
+<button class="btn secondary" onclick="toggleNotifications()">🔔 <span id="notificationBadge">0</span></button>
+<div id="notificationPanel" class="notification-panel">
+<strong>Notificações</strong>
+<button onclick="markNotificationsRead()">Marcar como lidas</button>
+<div id="notificationList">Entre para ver suas notificações.</div>
+</div>
+</div>
+<button class="btn" id="authButton" onclick="openAuth()">Entrar</button>
+</div>
+</div>
+</header>
+
  <div class="notification-wrap"> <button class="btn secondary" onclick="toggleNotifications()">
     🔔 <span id="notificationBadge">0</span>
   </button>
