@@ -5,6 +5,45 @@
 <meta name="theme-color" content="#100d1c"><title>FandomVerse — Comunidade de fãs</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+  .comments{
+  border-top:1px solid var(--line);
+  margin-top:12px;
+  padding-top:12px;
+}
+
+.comments>strong{
+  font-size:13px;
+}
+
+.comment-item{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  padding:9px 0;
+  border-bottom:1px solid #ffffff12;
+}
+
+.comment-item strong{
+  font-size:12px;
+}
+
+.comment-item p{
+  margin:4px 0;
+  font-size:13px;
+  overflow-wrap:anywhere;
+}
+
+.comment-form{
+  display:flex;
+  gap:7px;
+  margin-top:10px;
+}
+
+.comment-form input{
+  flex:1;
+  width:100%;
+  min-width:0;
+}
 :root{--bg:#100d1c;--panel:#1b1729;--panel2:#28213b;--text:#f7f3ff;--muted:#aaa2bd;--line:#39314e;--pink:#ff5da8;--violet:#9b7bff}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% -10%,#382451 0,transparent 38%),var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}.auth-switch{
   appearance:none;
@@ -82,8 +121,156 @@ async function ensureProfile(name){let {error}=await db.from("profiles").upsert(
 function showProfile(){let name=profile?.display_name||user?.email?.split("@")[0]||"Visitante";document.getElementById("profileName").textContent=name;document.getElementById("profileAvatar").textContent=name[0].toUpperCase();document.getElementById("profileBio").textContent=profile?.bio||"Fã no FandomVerse ✦";document.getElementById("profileFandom").textContent=profile?.favorite_fandom?"Fandom favorito: "+profile.favorite_fandom:""}
 function editProfileForm(){document.getElementById("editName").value=profile?.display_name||"";document.getElementById("editFandom").value=profile?.favorite_fandom||"";document.getElementById("editBio").value=profile?.bio||"";document.getElementById("profileModal").classList.add("show")}
 async function saveProfile(){let display_name=document.getElementById("editName").value.trim();if(!display_name){toast("Informe seu nome de fã.");return}let row={id:user.id,display_name,favorite_fandom:document.getElementById("editFandom").value.trim(),bio:document.getElementById("editBio").value.trim(),updated_at:new Date().toISOString()};let {data,error}=await db.from("profiles").upsert(row).select().single();if(error){toast(error.message);return}profile=data;showProfile();closeModal("profileModal");toast("Perfil atualizado!")}
-async function loadPosts(){let {data,error}=await db.from("posts").select("id,user_id,title,caption,category,image_url,created_at,profiles(display_name),likes(count)").order("created_at",{ascending:false}).limit(100);if(error){document.getElementById("gallery").innerHTML='<div class="empty">Não foi possível carregar as publicações. Confira a configuração do banco.</div>';console.error(error);return}posts=data||[];renderPosts()}
-function renderPosts(){let q=document.getElementById("search").value.toLowerCase(),sort=document.getElementById("sort").value;let list=posts.filter(p=>(category==="Todas"||p.category===category)&&[p.title,p.caption,p.profiles?.display_name,p.category].join(" ").toLowerCase().includes(q));if(sort==="popular")list.sort((a,b)=>(b.likes?.[0]?.count||0)-(a.likes?.[0]?.count||0));let el=document.getElementById("gallery");if(!list.length){el.innerHTML='<div class="empty">Ainda não há publicações nesta categoria. Seja a primeira pessoa a compartilhar uma imagem! ✦</div>';return}el.innerHTML=list.map(p=>{let count=p.likes?.[0]?.count||0;return `<article class="photo"><img loading="lazy" src="${safe(p.image_url)}" alt="${safe(p.title)}"><div class="info"><strong>${safe(p.title)}</strong><small>${safe(p.caption||"Sem legenda")} · por ${safe(p.profiles?.display_name||"Fã")}</small><div class="photofoot"><span class="tag">${safe(p.category)}</span><button class="like" onclick="likePost('${p.id}')">♡ ${count}</button></div></div></article>`}).join("")}
+async function loadPosts(){
+  let {data,error}=await db.from("posts")
+    .select("id,user_id,title,caption,category,image_url,created_at,profiles(display_name),likes(count),comments(count)")
+    .order("created_at",{ascending:false})
+    .limit(100);
+
+  if(error){
+    document.getElementById("gallery").innerHTML=
+      '<div class="empty">Não foi possível carregar as publicações.</div>';
+    console.error(error);
+    return;
+  }
+
+  posts=data||[];
+  renderPosts();
+}
+function renderPosts(){
+  let q=document.getElementById("search").value.toLowerCase();
+  let sort=document.getElementById("sort").value;
+
+  let list=posts.filter(p=>
+    (category==="Todas"||p.category===category)&&
+    [p.title,p.caption,p.profiles?.display_name,p.category]
+      .join(" ").toLowerCase().includes(q)
+  );
+
+  if(sort==="popular"){
+    list.sort((a,b)=>(b.likes?.[0]?.count||0)-(a.likes?.[0]?.count||0));
+  }
+
+  let el=document.getElementById("gallery");
+
+  if(!list.length){
+    el.innerHTML='<div class="empty">Ainda não há publicações nesta categoria. Seja a primeira pessoa a compartilhar uma imagem! ✦</div>';
+    return;
+  }
+
+  el.innerHTML=list.map(p=>{
+    let count=p.likes?.[0]?.count||0;
+    let commentsCount=p.comments?.[0]?.count||0;
+
+    return `
+      <article class="photo">
+        <img loading="lazy" src="${safe(p.image_url)}" alt="${safe(p.title)}">
+        <div class="info">
+          <strong>${safe(p.title)}</strong>
+          <small>${safe(p.caption||"Sem legenda")} · por ${safe(p.profiles?.display_name||"Fã")}</small>
+
+          <div class="photofoot">
+            <span class="tag">${safe(p.category)}</span>
+            <button class="like" onclick="likePost('${p.id}')">♡ ${count}</button>
+          </div>
+
+          <div class="comments">
+            <strong>💬 Comentários (${commentsCount})</strong>
+            <div id="comments-${p.id}">Carregando comentários...</div>
+
+            <div class="comment-form">
+              <input class="field" id="commentInput-${p.id}"
+                maxlength="1000" placeholder="Escreva um comentário...">
+              <button class="btn" onclick="addComment('${p.id}')">Enviar</button>
+            </div>
+          </div>
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  list.forEach(p=>loadComments(p.id));
+}
+  async function loadComments(postId){
+  const box=document.getElementById("comments-"+postId);
+  if(!box)return;
+
+  const {data,error}=await db.from("comments")
+    .select("id,user_id,content,created_at,profiles(display_name)")
+    .eq("post_id",postId)
+    .order("created_at",{ascending:true});
+
+  if(error){
+    box.textContent="Não foi possível carregar os comentários.";
+    return;
+  }
+
+  if(!data.length){
+    box.innerHTML='<small class="muted">Seja a primeira pessoa a comentar!</small>';
+    return;
+  }
+
+  box.innerHTML=data.map(c=>`
+    <div class="comment-item">
+      <div>
+        <strong>${safe(c.profiles?.display_name||"Fã")}</strong>
+        <p>${safe(c.content)}</p>
+      </div>
+      ${user&&user.id===c.user_id
+        ? `<button class="like" onclick="deleteComment('${c.id}','${postId}')">Excluir</button>`
+        : ""}
+    </div>
+  `).join("");
+}
+
+async function addComment(postId){
+  if(!user){
+    openAuth();
+    return;
+  }
+
+  const input=document.getElementById("commentInput-"+postId);
+  const content=input.value.trim();
+
+  if(!content){
+    toast("Escreva um comentário primeiro.");
+    return;
+  }
+
+  const {error}=await db.from("comments").insert({
+    post_id:postId,
+    user_id:user.id,
+    content:content
+  });
+
+  if(error){
+    toast(error.message);
+    return;
+  }
+
+  input.value="";
+  await loadPosts();
+  toast("Comentário publicado! 💜");
+}
+
+async function deleteComment(commentId,postId){
+  if(!user)return;
+
+  if(!confirm("Deseja excluir este comentário?"))return;
+
+  const {error}=await db.from("comments")
+    .delete()
+    .eq("id",commentId)
+    .eq("user_id",user.id);
+
+  if(error){
+    toast(error.message);
+    return;
+  }
+
+  await loadPosts();
+  toast("Comentário excluído.");
+}
 function safe(s){return String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 document.querySelectorAll(".filter").forEach(b=>b.onclick=()=>{document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");category=b.dataset.cat;renderPosts()});
 async function uploadPosts(e){selectedFiles=[...e.target.files];if(!selectedFiles.length)return;document.getElementById("postTitle").value=selectedFiles.length===1?selectedFiles[0].name.replace(/\.[^.]+$/,""):"Minha galeria";document.getElementById("postModal").classList.add("show");e.target.value=""}
