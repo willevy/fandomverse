@@ -100,6 +100,27 @@ section{padding:28px 0 38px}.head{display:flex;justify-content:space-between;ali
 <div class="actions">
 <span id="userLabel" class="muted" style="font-size:12px"></span>
 <div class="notification-wrap">
+  .notification-panel{
+  display:none;
+  position:absolute;
+  right:0;
+  top:100%;
+  width:300px;
+  padding:15px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:14px;
+  z-index:30;
+}
+
+.notification-panel.show{
+  display:block;
+}
+
+.notification-item{
+  padding:10px;
+  border-bottom:1px solid var(--line);
+}
 <button class="btn secondary" onclick="toggleNotifications()">🔔 <span id="notificationBadge">0</span></button>
 <div id="notificationPanel" class="notification-panel">
 <strong>Notificações</strong>
