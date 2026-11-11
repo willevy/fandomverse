@@ -430,39 +430,6 @@ async function loadNotifications(){
     list.appendChild(item);
   });
 }
-
-  const list = document.getElementById("notificationList");
-
-  if(!user){
-    list.textContent = "Entre na sua conta para ver notificações.";
-    return;
-  }
-
-  const {data,error} = await db
-    .from("notifications")
-    .select("id,type,created_at,read_at")
-    .eq("recipient_id",user.id)
-    .order("created_at",{ascending:false});
-
-  if(error){
-    list.textContent = "Erro ao carregar notificações.";
-    console.error(error);
-    return;
-  }
-
-  if(!data.length){
-    list.textContent = "Você ainda não tem notificações.";
-    return;
-  }
-
-  list.innerHTML = data.map(n => `
-    <div class="notification-item">
-      ${n.type === "follow" ? "Alguém começou a seguir você." :
-        n.type === "like" ? "Alguém curtiu sua publicação." :
-        "Alguém comentou na sua publicação."}
-    </div>
-  `).join("");
-}
 async function loadFollows(){
   if(!user)return;
 
