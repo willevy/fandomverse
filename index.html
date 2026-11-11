@@ -12,6 +12,32 @@
   padding:16px;
   margin:16px 0;
 }
+  .notification-wrap{
+  position:relative;
+}
+
+.notification-panel{
+  display:none;
+  position:absolute;
+  right:0;
+  top:100%;
+  width:300px;
+  max-width:calc(100vw - 32px);
+  padding:15px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:14px;
+  z-index:30;
+}
+
+.notification-panel.show{
+  display:block;
+}
+
+.notification-item{
+  padding:10px;
+  border-bottom:1px solid var(--line);
+}
 .follow-stats{
   display:flex;
   gap:24px;
