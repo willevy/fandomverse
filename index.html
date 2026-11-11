@@ -373,7 +373,64 @@ async function deleteComment(commentId,postId){
   }
 }
 
+
 async function loadNotifications(){
+  const list = document.getElementById("notificationList");
+
+  if(!user){
+    list.textContent = "Entre na sua conta para ver notificações.";
+    return;
+  }
+
+  const {data,error} = await db
+    .from("notifications")
+    .select("id,type,actor_id,created_at,read_at")
+    .eq("recipient_id",user.id)
+    .order("created_at",{ascending:false});
+
+  if(error){
+    list.textContent = "Erro ao carregar notificações.";
+    console.error(error);
+    return;
+  }
+
+  if(!data.length){
+    list.textContent = "Você ainda não tem notificações.";
+    return;
+  }
+
+  const actorIds = [...new Set(data.map(n => n.actor_id).filter(Boolean))];
+
+  const {data:profiles,error:profileError} = await db
+    .from("profiles")
+    .select("id,display_name")
+    .in("id",actorIds);
+
+  if(profileError) console.error(profileError);
+
+  const names = {};
+  (profiles || []).forEach(p => {
+    names[p.id] = p.display_name;
+  });
+
+  list.innerHTML = "";
+
+  data.forEach(n => {
+    const item = document.createElement("div");
+    item.className = "notification-item";
+
+    const name = names[n.actor_id] || "Alguém";
+
+    item.textContent = n.type === "follow"
+      ? name + " começou a seguir você."
+      : n.type === "like"
+      ? name + " curtiu sua publicação."
+      : name + " comentou na sua publicação.";
+
+    list.appendChild(item);
+  });
+}
+
   const list = document.getElementById("notificationList");
 
   if(!user){
